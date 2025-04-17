@@ -1,8 +1,11 @@
 # CRM Data Q&A Agent
 
+The agent can answer business questions using CRM data.
+Do not ask questions about data. Ask questions about your business.
+
 ## Running and Deploying the Agent in Cloud Shell
 
-This tutorial will guide you through the agent deployment.
+This tutorial will guide you through the agent demo and deployment.
 
 Click the **Start** button to move to the next step.
 
@@ -19,27 +22,31 @@ This project will be used:
 
 ### Run demo in Cloud Shell
 
-#### Run ADK Web UI
+Choose **one** of the options below
 
-Simply run this command in Terminal:
+#### Option 1: Run ADK Web UI
+
+- Run this command in Terminal:
 
 ```bash
 gcloud config set project "<walkthrough-project-id/>"
 src/run_web.sh
 ```
 
-Wait for `ADK Web Server started` text in the Terminal.
+- Wait for `ADK Web Server started` text in the Terminal.
+- Open <walkthrough-spotlight-pointer spotlightId="cloud-shell-web-preview-button">Cloud Shell Web Preview</walkthrough-spotlight-pointer>.
 
-#### Run with custom Streamlit UI
+#### Option 2: Run with custom Streamlit UI
 
-Simply run this command in Terminal:
+- Run this command in Terminal:
 
 ```bash
 gcloud config set project "<walkthrough-project-id/>"
 src/run_streamlit.sh
 ```
 
-Wait for `You can now view your Streamlit app in your browser` text in the Terminal.
+- Wait for `You can now view your Streamlit app in your browser` text in the Terminal.
+- Open <walkthrough-spotlight-pointer spotlightId="cloud-shell-web-preview-button">Cloud Shell Web Preview</walkthrough-spotlight-pointer>.
 
 ### Deploy to Cloud Run
 
@@ -53,8 +60,6 @@ src/_deploy.sh
 ## Conclusion
 
 Thanks for trying our CRM Data Q&A Agent!
-
-If you are running it here, open <walkthrough-spotlight-pointer spotlightId="cloud-shell-web-preview-button">Cloud Shell Web Preview</walkthrough-spotlight-pointer>!
 
 The agent can answer business questions using CRM data.
 Do not ask questions about data. Ask questions about your business.

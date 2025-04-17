@@ -4,6 +4,13 @@ It can answer business questions using CRM data.
 
 Do not ask questions about data. Ask questions about your business.
 
+Examples:
+
+* "Top 5 customers in every country"
+* "What are our best lead sources?"
+  * or more specific "What are our best lead sources by value?"
+* Lead conversion trends in the US.
+
 ## Deploy and Run
 
 ### Running the demo

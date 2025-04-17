@@ -1,0 +1,14 @@
+google-adk
+streamlit
+tabulate
+platformdirs
+Flask
+gunicorn
+scikit-learn
+google-genai
+pillow
+
+pandas
+google-cloud-bigquery[pandas]
+altair
+vl-convert-python

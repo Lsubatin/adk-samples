@@ -46,8 +46,10 @@ echo "Using project ${GOOGLE_CLOUD_PROJECT}"
 
 pushd "${SCRIPT_DIR}/agents" &> /dev/null || exit
 
-pip install -r "${AGENT_NAME}/requirements.txt" # &> /dev/null
+echo "Installing dependencies..."
+pip install -r "${AGENT_NAME}/requirements.txt" &> /dev/null
 
+echo "Running..."
 if [[ "${1}" == "streamlit" ]]; then
     python3 main.py "${AGENT_NAME}"
 else

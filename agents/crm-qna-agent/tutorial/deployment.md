@@ -50,6 +50,6 @@ src/_deploy.sh
 
 Thanks for trying our agent!
 
-If you are running it, [open the Web UI here](http://localhost:8080)!
+If you are running it, <walkthrough-editor-spotlight spotlightId="cloud-shell-web-preview-button">Cloud Shell Web Preview</walkthrough-editor-spotlight>!
 
 <walkthrough-conclusion-trophy></walkthrough-conclusion-trophy>

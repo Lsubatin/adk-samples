@@ -37,6 +37,6 @@ src/_deploy.sh
 
 ## Conclusion
 
-Thanks for trying our agent!
+Thanks for trying our agent! Open it [here](http://localhost:8080)!
 
 <walkthrough-conclusion-trophy></walkthrough-conclusion-trophy>

@@ -18,7 +18,7 @@ Use this magic button to run this agent in Cloud Shell
 * [Optional] Edit `src/_run.sh` with your environment variables. For running a demo, only really only may need to change `GOOGLE_CLOUD_PROJECT` configuration variable.
 
 > If running in Cloud Shell, don't change the variable. Select proper active project in Terminal instead.
-If facing issues, try [Ephemeral Mode](https://shell.cloud.google.com/cloudshell/?terminal=true&show=terminal&cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fvladkol%2Fadk-samples&cloudshell_git_branch=vladkol%2Fcrm-qna-agent&cloudshell_tutorial=tutorial%2Fdeployment.md&cloudshell_workspace=agents%2Fcrm-qna-agent&ephemeral=true).
+If facing issues (e.g. `marshal data too short` error), try [Ephemeral Mode](https://shell.cloud.google.com/cloudshell/?terminal=true&show=terminal&cloudshell_git_repo=https%3A%2F%2Fgithub.com%2Fvladkol%2Fadk-samples&cloudshell_git_branch=vladkol%2Fcrm-qna-agent&cloudshell_tutorial=tutorial%2Fdeployment.md&cloudshell_workspace=agents%2Fcrm-qna-agent&ephemeral=true).
 
 * Enable Vertex AI and BigQuery APIs
 

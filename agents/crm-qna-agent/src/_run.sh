@@ -22,7 +22,7 @@ GOOGLE_CLOUD_PROJECT="$(gcloud config get-value project -q)"
 export GOOGLE_CLOUD_PROJECT
 
 export GOOGLE_CLOUD_LOCATION="us-central1" # Cloud region to use Vertex AI in.
-export PORT=8080 # Streamlit app port.
+export PORT=8080 # Web app port.
 
 ####################### Salesforce.com Data in BigQuery #######################
 

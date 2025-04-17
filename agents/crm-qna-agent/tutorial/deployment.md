@@ -21,25 +21,29 @@ This project will be used:
 
 #### Run ADK Web UI
 
-Simply run this command in Cloud Shell:
+Simply run this command in Terminal:
 
 ```bash
 gcloud config set project "<walkthrough-project-id/>"
 src/run_web.sh
 ```
 
+Wait for `ADK Web Server started` text in the Terminal.
+
 #### Run with custom Streamlit UI
 
-Simply run this command in Cloud Shell:
+Simply run this command in Terminal:
 
 ```bash
 gcloud config set project "<walkthrough-project-id/>"
 src/run_streamlit.sh
 ```
 
+Wait for `You can now view your Streamlit app in your browser` text in the Terminal.
+
 ### Deploy to Cloud Run
 
-To deploy the agent to Cloud Run, run this command in Cloud Shell:
+To deploy the agent to Cloud Run, run this command in Terminal:
 
 ```bash
 gcloud config set project "<walkthrough-project-id/>"

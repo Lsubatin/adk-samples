@@ -6,7 +6,7 @@ Do not ask questions about data. Ask questions about your business.
 
 ## Deploy and Run
 
-### Running demo in [Google Cloud Shell](https://shell.cloud.google.com/cloudshell/?terminal=true&show=terminal) or locally
+### Running demo in Google Cloud Shell or locally
 
 Use this magic button to run this agent in Cloud Shell
 

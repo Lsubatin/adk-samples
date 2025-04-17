@@ -48,6 +48,10 @@ pushd "${SCRIPT_DIR}/agents" &> /dev/null || exit
 
 pip install -r "${AGENT_NAME}/requirements.txt" # &> /dev/null
 
-python3 main.py "${AGENT_NAME}"
+if [[ "${1}" == "streamlit" ]]; then
+    python3 main.py "${AGENT_NAME}"
+else
+    python3 -m google.adk.cli web --port "${PORT}"
+fi
 
 popd &> /dev/null || exit

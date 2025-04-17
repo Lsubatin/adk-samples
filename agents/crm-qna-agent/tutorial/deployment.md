@@ -19,16 +19,27 @@ This project will be used:
 
 ### Run demo in Cloud Shell
 
+#### Run ADK Web UI
+
 Simply run this command in Cloud Shell:
 
 ```bash
 gcloud config set project "<walkthrough-project-id/>"
-src/_run.sh
+src/run_web.sh
+```
+
+#### Run with custom streamlit UI
+
+Simply run this command in Cloud Shell:
+
+```bash
+gcloud config set project "<walkthrough-project-id/>"
+src/run_streamlit.sh
 ```
 
 ### Deploy to Cloud Run
 
-To deploy the agent to Cloud Run, simply run this command in Cloud Shell:
+To deploy the agent to Cloud Run, run this command in Cloud Shell:
 
 ```bash
 gcloud config set project "<walkthrough-project-id/>"
@@ -37,6 +48,8 @@ src/_deploy.sh
 
 ## Conclusion
 
-Thanks for trying our agent! Open it [here](http://localhost:8080)!
+Thanks for trying our agent!
+
+If you are running it, [open the Web UI here](http://localhost:8080)!
 
 <walkthrough-conclusion-trophy></walkthrough-conclusion-trophy>

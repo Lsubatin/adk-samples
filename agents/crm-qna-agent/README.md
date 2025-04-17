@@ -32,7 +32,7 @@ Use this magic button to run this agent in Cloud Shell, and follow the tutorial!
 * Run `src/run_web.sh` (or `src/run_streamlit.sh` for custom Streamlit-based UI).
 * Navigate to `http://localhost:8080`.
 
-> You can also simply run `adk web` from your `agents` directory. Make sure you install dependencies before that: `pip install -r agents/crm-qna-agent/src/agents/qna_agent/requirements.txt`.
+> You can also simply run `adk web` from the main `agents` directory. Make sure you install dependencies before that: `pip install -r agents/crm-qna-agent/src/agents/qna_agent/requirements.txt`.
 
 ### Deploying the Agent to Cloud Run
 

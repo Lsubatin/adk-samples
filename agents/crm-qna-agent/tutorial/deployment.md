@@ -28,7 +28,7 @@ gcloud config set project "<walkthrough-project-id/>"
 src/run_web.sh
 ```
 
-#### Run with custom streamlit UI
+#### Run with custom Streamlit UI
 
 Simply run this command in Cloud Shell:
 
@@ -48,8 +48,11 @@ src/_deploy.sh
 
 ## Conclusion
 
-Thanks for trying our agent!
+Thanks for trying our CRM Data Q&A Agent!
 
 If you are running it here, open <walkthrough-spotlight-pointer spotlightId="cloud-shell-web-preview-button">Cloud Shell Web Preview</walkthrough-spotlight-pointer>!
+
+The agent can answer business questions using CRM data.
+Do not ask questions about data. Ask questions about your business.
 
 <walkthrough-conclusion-trophy></walkthrough-conclusion-trophy>

@@ -46,6 +46,12 @@ echo "Using project ${GOOGLE_CLOUD_PROJECT}"
 
 pushd "${SCRIPT_DIR}/agents" &> /dev/null || exit
 
+echo "Enabling APIs..."
+gcloud services enable \
+    aiplatform.googleapis.com \
+    bigquery.googleapis.com \
+    --project="${GOOGLE_CLOUD_PROJECT}"
+
 echo "Installing dependencies..."
 pip install -r "${AGENT_NAME}/requirements.txt" &> /dev/null
 

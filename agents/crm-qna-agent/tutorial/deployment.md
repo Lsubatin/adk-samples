@@ -50,6 +50,6 @@ src/_deploy.sh
 
 Thanks for trying our agent!
 
-If you are running it, <walkthrough-editor-spotlight spotlightId="cloud-shell-web-preview-button">Cloud Shell Web Preview</walkthrough-editor-spotlight>!
+If you are running it, <walkthrough-spotlight-pointer spotlightId="cloud-shell-web-preview-button">Cloud Shell Web Preview</walkthrough-spotlight-pointer>!
 
 <walkthrough-conclusion-trophy></walkthrough-conclusion-trophy>

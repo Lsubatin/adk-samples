@@ -15,17 +15,22 @@ This project will be used:
 
 <walkthrough-project-setup billing="true"></walkthrough-project-setup>
 
-## Run
-
-### **For Demo installations only**
-
-We can automatically create test datasets and artifacts for you in a few clicks.
+## Run in Cloud Shell
 
 Simply run this command in Cloud Shell:
 
 ```bash
 gcloud config set project "<walkthrough-project-id/>"
 src/_run.sh
+```
+
+## Deploy to Cloud Run
+
+To deploy the agent to Cloud Run, simply run this command in Cloud Shell:
+
+```bash
+gcloud config set project "<walkthrough-project-id/>"
+src/_deploy.sh
 ```
 
 ## Conclusion

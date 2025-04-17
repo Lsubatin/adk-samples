@@ -20,7 +20,7 @@ from google.genai.types import (
                                 GenerateContentConfig,
                                 SafetySetting,
                                 )
-from google.adk.agents import LlmAgent, SequentialAgent
+from google.adk.agents import LlmAgent
 from google.adk.agents.callback_context import CallbackContext
 from google.adk.models import LlmResponse, LlmRequest
 from google.adk.planners import PlanReActPlanner

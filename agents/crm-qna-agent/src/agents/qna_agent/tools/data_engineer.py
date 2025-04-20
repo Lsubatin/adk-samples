@@ -27,8 +27,8 @@ from google.cloud.bigquery import Client, QueryJobConfig
 from .utils import get_genai_client
 
 
-DATA_ENGINEER_AGENT_MODEL_ID = "gemini-2.5-pro-preview-03-25"
-SQL_VALIDATOR_MODEL_ID =  "gemini-2.0-flash-001"
+DATA_ENGINEER_AGENT_MODEL_ID = "gemini-2.5-flash-preview-04-17" # "gemini-2.5-pro-preview-03-25"
+SQL_VALIDATOR_MODEL_ID =  "gemini-2.5-flash-preview-04-17" # "gemini-2.0-flash-001"
 _DatedConversionRate_name = "DatedConversionRate"
 _DEFAULT_KITTYCORN_MAPPING="Account=accounts,Case=cases,Contact=contacts,DatedConversionRate=dated_conversion_rates,Event=events,Lead=leads,Opportunity=opportunities,RecordType=record_types,Task=tasks,User=users"
 _DEFAULT_METADATA_FILE="sfdc_metadata.json"

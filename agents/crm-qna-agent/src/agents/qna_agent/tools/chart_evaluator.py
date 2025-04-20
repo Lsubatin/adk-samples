@@ -40,6 +40,7 @@ def evaluate_chart(png_image: bytes, question: str, data_row_count: int, tool_co
 
     prompt = f"""
 The image is a BI chart or a dashboard that shows data supporting an answer to a question below.
+The chart must be comfortable to read on a 2K screen of 16 inch size.
 
 QUESTION:
 ```
@@ -64,7 +65,7 @@ You are an experienced Business Intelligence UX designer.
 You can look at a chart or a dashboard, and tell if it the right one for the question.
 Number of rows in the data source is: {data_row_count}.
 
-You return word "SATISFIED" (only one word, that's it) if chart is good.
+After looking at a chart, decide if it's good or not good (thing in between).
 Otherwise a longer text explaining what to work on.
 If not, you return a longer explanation and commendation.
 """,

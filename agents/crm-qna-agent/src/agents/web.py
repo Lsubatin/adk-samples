@@ -16,6 +16,7 @@
 import asyncio
 import importlib.util
 from io import BytesIO
+import json
 import logging
 import os
 import sys
@@ -23,6 +24,7 @@ from time import time
 from typing import Optional
 import uuid
 
+import pandas as pd
 import streamlit as st
 
 from google.genai.types import Content, Part
@@ -136,14 +138,32 @@ def _process_event(event: Event):
                 app_name=session.app_name, user_id=session.user_id,
                 session_id=session.id, filename=filename, version=version
             )
-            if artifact.inline_data:
-                if artifact.inline_data.mime_type.startswith('image/'):
+            if (artifact.inline_data
+                and not filename.startswith(f"{event.invocation_id}.")
+                and artifact.inline_data.mime_type.startswith('image/')):
                     with BytesIO(artifact.inline_data.data) as image_io:
                         with Image.open(image_io) as img:
                             st.image(img)
             elif artifact.text:
                 if filename.endswith(".json"):
-                    st.markdown(f"```json\n{artifact.text}\n```", unsafe_allow_html=True)
+                    st.json(artifact.text)
+                elif filename.endswith(".vg"):
+                    data_file_name = filename.rsplit(".", 1)[0] + ".parquet"
+                    pq_bytes = artifact_service.load_artifact(
+                        app_name=session.app_name,
+                        user_id=session.user_id,
+                        session_id=session.id,
+                        filename=data_file_name,
+                        version=version).inline_data.data # type: ignore
+                    chart_dict = json.loads(artifact.text)
+                    if pq_bytes:
+                        with BytesIO(pq_bytes) as pq_file:
+                            df = pd.read_parquet(pq_file)
+                        st.dataframe(df)
+                        chart_dict.pop("data", None)
+                    else:
+                        df = None
+                    st.vega_lite_chart(data=df, spec=chart_dict)
                 else:
                     st.markdown(artifact.text, unsafe_allow_html=True)
 

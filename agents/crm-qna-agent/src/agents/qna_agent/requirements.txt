@@ -10,5 +10,6 @@ pillow
 
 pandas
 google-cloud-bigquery[pandas]
+google-cloud-bigquery-storage
 altair
 vl-convert-python

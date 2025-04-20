@@ -35,7 +35,13 @@ ROOT_AGENT_MODEL_ID = "gemini-2.5-pro-preview-03-25"
 
 def before_model_callback(callback_context: CallbackContext,
                           llm_request: LlmRequest) -> LlmResponse | None:
-    pass
+    chart_image_name = callback_context.state.get("chart_image_name", None)
+    if chart_image_name:
+        callback_context.state["chart_image_name"] = ""
+        llm_request.contents[0].parts.append( # type: ignore
+            callback_context.load_artifact(
+                filename=chart_image_name)) # type: ignore
+    return None
 
 
 def before_agent_callback(callback_context: CallbackContext) -> Optional[Content]:
@@ -45,6 +51,7 @@ def before_agent_callback(callback_context: CallbackContext) -> Optional[Content
 def after_model_callback(callback_context: CallbackContext,
                           llm_response: LlmResponse) -> LlmResponse | None:
     pass
+
 
 ########################### AGENT ###########################
 
@@ -71,8 +78,9 @@ Follow these steps meticulously to answer the user's query. Remember, your teamm
 
 1.  **Understand & Consult BA:**
     *   Receive the user's question.
-    *   **Action:** Explain the user's question clearly to the **CRM Business Analyst**. Pass the exact user question.
+    *   **Action:** Explain the user's question clearly to the **CRM Business Analyst**. Also pass the exact user question.
     *   **Goal:** Request their expert suggestion on relevant data points, metrics, KPIs, dimensions, and potential filters needed to answer the question effectively. Ask for the *rationale* behind their suggestions.
+    *   **Constraint** Do not call twice with the same or very similar question. You will likely get the same answer.
 
 2.  **Validate & Refine Plan:**
     *   Receive the BA's suggestions.
@@ -126,7 +134,6 @@ Follow these steps meticulously to answer the user's query. Remember, your teamm
     """.strip(),
     before_model_callback=before_model_callback,
     after_model_callback=after_model_callback,
-    after_agent_callback=None,
     before_agent_callback=before_agent_callback,
     tools=[
         AgentTool(crm_business_analyst_agent),

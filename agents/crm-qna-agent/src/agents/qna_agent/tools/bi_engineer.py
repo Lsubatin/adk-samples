@@ -33,6 +33,7 @@ import pandas as pd
 from .utils import get_genai_client
 from tools.chart_evaluator import evaluate_chart
 
+MAX_RESULT_ROWS_DISPLAY = 50
 BI_ENGINEER_AGENT_MODEL_ID = "gemini-2.5-pro-preview-03-25" # "gemini-1.5-pro-002"  "gemini-2.0-flash-001"
 BI_ENGINEER_FIX_AGENT_MODEL_ID = "gemini-2.5-pro-preview-03-25" # "gemini-2.0-flash-001"
 
@@ -90,9 +91,6 @@ def bi_engineer_tool(original_business_question: str,
         df: pd.DataFrame = client.query(sql_code,
                      job_config=job_config,
                      location=dataset_location).result().to_dataframe()
-        with io.StringIO() as csv_buffer:
-            df.to_csv(csv_buffer, index=False)
-            csv = csv_buffer.getvalue()
     except (BadRequest, NotFound) as ex:
         err_text = ex.args[0].strip()
         return f"BIGQUERY ERROR: {err_text}"
@@ -107,7 +105,7 @@ You are an experienced Business Intelligence engineer tasked with creating a dat
     ```sql
     {sql_code}
     ```
-4.  **Resulting Data Preview (first 10 rows):**
+4.  **Resulting Data Preview (first {min(10,len(df))} rows):**
     ```
     {df.head(10)}
     ```
@@ -119,11 +117,11 @@ Generate a single, complete Vega-Lite **4** JSON specification for a chart that 
 **Key Requirements & Best Practices:**
 
 1.  **Chart Type Selection:**
-    *   Choose the most appropriate chart type (e.g., bar, line, area, scatter, text) based on the data structure (column types, number of rows: `{len(df)}`) and the question being answered.
-    *   If `{len(df)} == 1`, generate a "text" mark displaying the key metric(s) with clear descriptive label(s).
+    *   Choose the most appropriate chart type (e.g., bar, line, area, pie, scatter, text) based on the data structure (column types, number of rows: `{len(df)}`) and the question being answered.
+    *   Number of data rows is `{len(df)}`. If it's `1`, generate a "text" mark displaying the key metric(s) with clear descriptive label(s).
 
 2.  **Data Encoding:**
-    *   **Use Provided Data:** Map columns directly from the provided data (`{df.head(10)}` shows available column names).
+    *   **Use Provided Data:** Map columns directly from the provided data (`Resulting Data Preview` above shows available column names).
     *   **Prioritize Readability:** Use descriptive entity names (e.g., `CustomerName`) for axes, legends, and tooltips instead of identifiers (e.g., `CustomerID`) whenever available. Look for columns ending in `Name`, `Label`, `Category`, etc.
     *   **Correct Data Types:** Accurately map data columns to Vega-Lite types (`quantitative`, `temporal`, `nominal`, `ordinal`).
     *   **Axes & Legends:**
@@ -134,13 +132,18 @@ Generate a single, complete Vega-Lite **4** JSON specification for a chart that 
 3.  **Data Transformation & Refinement:**
     *   **Sorting:** Apply meaningful sorting (e.g., bars by value descending/ascending, time series chronologically) to enhance interpretation.
     *   **Filtering:** Consider adding a `transform` filter *only if* it clarifies the visualization by removing irrelevant data (e.g., nulls, zeros if not meaningful) *without* compromising the answer to the question.
-    *   **Top-K:** If dealing with high cardinality dimensions (if `{len(df)}` is large), consider showing the Top-N (e.g., top 10-20) items and grouping the rest into "Other" if appropriate for the question.
+    *   **Top-K:** If dealing with high cardinality dimensions, consider using a chart type and grouping that would make the chart easy to understand.
 
 4.  **Chart Aesthetics & Formatting:**
     *   **Title:** Provide a clear, descriptive title for the chart that summarizes its main insight or content relevant to the question.
     *   **Readability:** Ensure all labels (axes, data points, legends) are easily readable and do not overlap. Rotate or reposition labels if necessary. Use tooltips to show details on hover.
     *   **Dashboard-Ready:** Design the chart to be clear and effective when viewed as part of a larger dashboard. Aim for simplicity and avoid clutter.
-    *   **Sizing:** Define reasonable `width` and `height` suitable for a typical dashboard component (e.g., start with `width: 600`, `height: 400` and adjust based on chart complexity and data volume). Consider using `autosize: fit` properties if appropriate. Avoid making the chart excessively large or small. If using `vconcat` or `hconcat`, adjust overall dimensions accordingly.
+    *   **Sizing and Scaling:**
+        - Define reasonable `width` and `height` suitable for a typical dashboard component. *Minimal* width is 1152. *Minimal* height is 648.
+        - The chart must be comfortable to view using 16 inch screen at resolution PPI=72.
+        - Consider using `autosize: fit` properties if appropriate.
+        - Avoid making the chart excessively large or small.
+        - If using `vconcat` or `hconcat`, adjust width and height accordingly to accommodate all series.
 
 5.  **Strict Technical Constraints:**
     *   **Vega-Lite Version:** MUST use Vega-Lite **version 4** schema.
@@ -176,12 +179,13 @@ Generate a single, complete Vega-Lite **4** JSON specification for a chart that 
                 if not vega_fix_chat:
                     vega_fix_chat = _create_chat(BI_ENGINEER_AGENT_MODEL_ID, vega_chat.get_history())
                 chart_json = vega_fix_chat.send_message(message).text
-        chart_pure_json = vega_chart.to_json(indent=1)
-        rows_dicts = df.to_dict("records")
-        vega_dict["data"]["values"] = rows_dicts
+        # rows_dicts = df.to_dict("records")
+        # vega_dict["data"]["values"] = rows_dicts
         error_reason = ""
         try:
             vega_chart = alt.Chart.from_dict(vega_dict)
+            vega_chart_json = json.dumps(vega_dict, indent=1)
+            vega_chart.data = df
         except ValueError as ex:
             error_reason = str(ex)
 
@@ -196,6 +200,7 @@ Generate a single, complete Vega-Lite **4** JSON specification for a chart that 
             error_reason = evaluate_chart_result.reason
         if not error_reason:
             break
+
         chart_json = vega_chat.send_message(f"""Fix the chart based on the feedback.
                                             Only output Vega 4 Lite json.
 
@@ -206,30 +211,42 @@ Generate a single, complete Vega-Lite **4** JSON specification for a chart that 
             ***CHART**
 
             ``json
-            {chart_pure_json}
+            {vega_chart_json}
             ````
             """).text
 
-    #file_name = f"{time.time_ns()}.json"
-    #tool_context.save_artifact(filename=file_name, artifact=Part.from_text(
-    #        text=chart_pure_json))
-    tool_context.save_artifact(
-                    filename=f"{time.time_ns()}.md",
-                    artifact=Part.from_text(
-                                    text=df.to_markdown(index=False)
-                    )
-    )
+    data_file_name = f"{tool_context.invocation_id}.parquet"
+    parquet_bytes = df.to_parquet()
+    tool_context.save_artifact(filename=data_file_name,
+                               artifact=Part.from_bytes(
+                                   data=parquet_bytes,
+                                   mime_type="application/parquet"))
+    file_name = f"{tool_context.invocation_id}.vg"
+    tool_context.save_artifact(filename=file_name, artifact=Part.from_text(
+            text=vega_chart_json))
+
+    # tool_context.save_artifact(
+    #                 filename=f"{time.time_ns()}.md",
+    #                 artifact=Part.from_text(
+    #                                 text=df.to_markdown(index=False)
+    #                 )
+    # )
     with io.BytesIO() as file:
-        vega_chart.save(file, "png")
+        vega_chart.save(file, "png", ppi=72)
         file.seek(0)
         data = file.getvalue()
-        new_image_name = hashlib.md5(data).hexdigest()
+        new_image_name = f"{tool_context.invocation_id}.png" # hashlib.md5(data).hexdigest()
         tool_context.save_artifact(filename=new_image_name,
                                 artifact=Part.from_bytes(
                                     mime_type="image/png",
                                     data=data
                                 ))
+        tool_context.state["chart_image_name"] = new_image_name
 
+    csv = df.head(MAX_RESULT_ROWS_DISPLAY).to_csv(index=False)
+    if len(df) > MAX_RESULT_ROWS_DISPLAY:
+        csv_message = f"**FIRST {MAX_RESULT_ROWS_DISPLAY} ROWS OF DATA**:"
+    else:
+        csv_message = "**DATA**:"
 
-    image_id = new_image_name
-    return f"chart_image_id: `{image_id}`\n\n```csv\n{csv}\n```\n"
+    return f"chart_image_id: `{new_image_name}`\n\n{csv_message}\n\n```csv\n{csv}\n```\n"

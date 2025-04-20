@@ -27,7 +27,7 @@ from google.cloud.bigquery import Client, QueryJobConfig
 from .utils import get_genai_client
 
 
-DATA_ENGINEER_AGENT_MODEL_ID = "gemini-2.5-flash-preview-04-17" # "gemini-2.5-pro-preview-03-25"
+DATA_ENGINEER_AGENT_MODEL_ID = "gemini-2.5-pro-preview-03-25"
 SQL_VALIDATOR_MODEL_ID =  "gemini-2.5-flash-preview-04-17" # "gemini-2.0-flash-001"
 _DatedConversionRate_name = "DatedConversionRate"
 _DEFAULT_KITTYCORN_MAPPING="Account=accounts,Case=cases,Contact=contacts,DatedConversionRate=dated_conversion_rates,Event=events,Lead=leads,Opportunity=opportunities,RecordType=record_types,Task=tasks,User=users"
@@ -148,6 +148,10 @@ state them clearly before providing the SQL.
 
 **Context & Rules:**
 
+0. **Style:**
+    * Do not over-complicate SQL. Make it easy to read.
+    * When using complex expressions, pay attention to how it actually works.
+
 1.  **Target Environment:**
     *   BigQuery Project ID: `{_data_project_id}`
     *   BigQuery Dataset: `{_dataset}`
@@ -167,7 +171,11 @@ state them clearly before providing the SQL.
     *   **States/Provinces:** Use multiple forms including abbreviations (e.g., `State IN ('FL', 'Florida')`, `State IN ('TX', 'Texas')`).
     *   **Multiple Values:** Combine all forms when checking multiple locations (e.g., `State IN ('TX', 'Texas', 'FL', 'Florida')`).
 
-4.  **Data Schema:**
+4.  **Reference and dimension filters:**
+    *   **Empty references are NULL**: Whenever you work with a nullable string column with name ending with "Id", it may have empty value which the same as having NULL.
+    *   **Dimensions with NULL**: if a dimension doesn't have empty string '' as one of its possible values, treat empty string '' as NULL value.
+
+5.  **Data Schema:**
     *   The authoritative source for available tables and columns is the JSON structure below.
     *   **Constraint:** ONLY use tables and columns defined within this schema.
 

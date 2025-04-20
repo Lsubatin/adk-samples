@@ -39,10 +39,22 @@ def evaluate_chart(png_image: bytes, question: str, data_row_count: int, tool_co
     """
 
     prompt = f"""
-The image is a BI chart or a dashboard that shows data supporting an answer to a question below.
-The chart must be comfortable to read on a 2K screen of 16 inch size.
+**Instructions**:
 
-QUESTION:
+The image is a BI chart or a dashboard that shows data supporting an answer to a question below.
+
+Number of rows in the data source is: {data_row_count}.
+Make sure labels and values are readable.
+
+After looking at a chart, decide if it's good or not good (nothing in between).
+If not good, provide a reason with a longer explanation of what needs to be worked on.
+
+The chart must be comfortable to read on a 2K screen of 16 inch size.
+Do not make comments about choice of dimensions, metrics, grouping or data cardinality.
+You can only criticize readability, composition, color choices, font size, etc.
+You work with non-interactive Vega Lite 4 charts.
+
+**QUESTION:**
 ```
 {question}
 ```
@@ -63,11 +75,6 @@ QUESTION:
                                                    system_instruction=f"""
 You are an experienced Business Intelligence UX designer.
 You can look at a chart or a dashboard, and tell if it the right one for the question.
-Number of rows in the data source is: {data_row_count}.
-
-After looking at a chart, decide if it's good or not good (thing in between).
-Otherwise a longer text explaining what to work on.
-If not, you return a longer explanation and commendation.
 """,
                                                     temperature=0.0,
                                                     top_p=0.0,

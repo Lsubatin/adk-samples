@@ -105,11 +105,15 @@ You are an experienced Business Intelligence engineer tasked with creating a dat
     ```sql
     {sql_code}
     ```
-4.  **Resulting Data Preview (first {min(10,len(df))} rows):**
+4.  **Resulting schema (from dataframe):**
+    ```
+    {df.dtypes.to_string()}
+    ```
+5.  **Resulting Data Preview (first {min(10,len(df))} rows):**
     ```
     {df.head(10)}
     ```
-5.  **Total Rows in Result:** `{len(df)}`
+6.  **Total Rows in Result:** `{len(df)}`
 
 **Your Task:**
 Generate a single, complete Vega-Lite **4** JSON specification for a chart that effectively visualizes the provided data to answer the `{question_that_sql_result_can_answer}`.
@@ -130,14 +134,16 @@ Generate a single, complete Vega-Lite **4** JSON specification for a chart that 
         *   Format axes appropriately (e.g., date formats, currency formats).
 
 3.  **Data Transformation & Refinement:**
+    *   **Data representation:** Do not use "dataset" element, only "data".
     *   **Sorting:** Apply meaningful sorting (e.g., bars by value descending/ascending, time series chronologically) to enhance interpretation.
     *   **Filtering:** Consider adding a `transform` filter *only if* it clarifies the visualization by removing irrelevant data (e.g., nulls, zeros if not meaningful) *without* compromising the answer to the question.
-    *   **Top-K:** If dealing with high cardinality dimensions, consider using a chart type and grouping that would make the chart easy to understand.
+    *   **Many rows:** If dealing with high cardinality dimensions, consider using a chart type and grouping that would make the chart easy to understand.
 
 4.  **Chart Aesthetics & Formatting:**
     *   **Title:** Provide a clear, descriptive title for the chart that summarizes its main insight or content relevant to the question.
     *   **Readability:** Ensure all labels (axes, data points, legends) are easily readable and do not overlap. Rotate or reposition labels if necessary. Use tooltips to show details on hover.
     *   **Dashboard-Ready:** Design the chart to be clear and effective when viewed as part of a larger dashboard. Aim for simplicity and avoid clutter.
+    *   **Vega Lite 4 Selection:** Do not add dynamic parameters (`params`).
     *   **Sizing and Scaling:**
         - Define reasonable `width` and `height` suitable for a typical dashboard component. *Minimal* width is 1152. *Minimal* height is 648.
         - The chart must be comfortable to view using 16 inch screen at resolution PPI=72.
@@ -162,32 +168,30 @@ Generate a single, complete Vega-Lite **4** JSON specification for a chart that 
     if not chart_json:
         return "ERROR: Could not generate a chart."
 
-    for _ in range(3): # 3 tries to make a good chart
-        while True:
+    for _ in range(5): # 5 tries to make a good chart
+        for _ in range(10):
             try:
                 chart_json = _clean_vega(chart_json) # type: ignore
                 vega_dict = json.loads(chart_json)
-                vega_dict["data"] = {}
-                vega_dict["data"]["values"] = []
+                vega_dict["data"] = {"values": []}
                 vega_dict.pop("datasets", None)
                 vega_chart = alt.Chart.from_dict(vega_dict)
                 with io.BytesIO() as tmp:
                     vega_chart.save(tmp, "png")
+                vega_chart_json = json.dumps(vega_dict, indent=1)
+                vega_chart.data = df
+                with io.BytesIO() as file:
+                    vega_chart.save(file, "png")
                 break
             except (jsonschema.ValidationError, json.JSONDecodeError, ValueError, ReferenceError) as ex:
                 message = f"ERROR {type(ex).__name__}: " + ex.message if ex is jsonschema.ValidationError else str(ex)
+                error_reason = message
+                print(message)
                 if not vega_fix_chat:
                     vega_fix_chat = _create_chat(BI_ENGINEER_AGENT_MODEL_ID, vega_chat.get_history())
+                print("Fixing...")
                 chart_json = vega_fix_chat.send_message(message).text
-        # rows_dicts = df.to_dict("records")
-        # vega_dict["data"]["values"] = rows_dicts
         error_reason = ""
-        try:
-            vega_chart = alt.Chart.from_dict(vega_dict)
-            vega_chart_json = json.dumps(vega_dict, indent=1)
-            vega_chart.data = df
-        except ValueError as ex:
-            error_reason = str(ex)
 
         if not error_reason:
             with io.BytesIO() as file:
@@ -198,9 +202,13 @@ Generate a single, complete Vega-Lite **4** JSON specification for a chart that 
             if not evaluate_chart_result or evaluate_chart_result.is_good:
                 break
             error_reason = evaluate_chart_result.reason
+
         if not error_reason:
             break
 
+        print(f"Feedback:\n{error_reason}.\n\nWorking on another version...")
+        history = vega_fix_chat.get_history() if vega_fix_chat else vega_chat.get_history()
+        vega_chat = _create_chat(BI_ENGINEER_AGENT_MODEL_ID, history)
         chart_json = vega_chat.send_message(f"""Fix the chart based on the feedback.
                                             Only output Vega 4 Lite json.
 
@@ -215,6 +223,11 @@ Generate a single, complete Vega-Lite **4** JSON specification for a chart that 
             ````
             """).text
 
+    print(f"Done working on a chart.")
+    if error_reason:
+        print(f"Chart is still not good: {error_reason}")
+    else:
+        print("And the chart seem good to me.")
     data_file_name = f"{tool_context.invocation_id}.parquet"
     parquet_bytes = df.to_parquet()
     tool_context.save_artifact(filename=data_file_name,
@@ -245,7 +258,7 @@ Generate a single, complete Vega-Lite **4** JSON specification for a chart that 
 
     csv = df.head(MAX_RESULT_ROWS_DISPLAY).to_csv(index=False)
     if len(df) > MAX_RESULT_ROWS_DISPLAY:
-        csv_message = f"**FIRST {MAX_RESULT_ROWS_DISPLAY} ROWS OF DATA**:"
+        csv_message = f"**FIRST {MAX_RESULT_ROWS_DISPLAY} OF {len(df)} ROWS OF DATA**:"
     else:
         csv_message = "**DATA**:"
 

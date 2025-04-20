@@ -163,7 +163,9 @@ def _process_event(event: Event):
                         chart_dict.pop("data", None)
                     else:
                         df = None
-                    st.vega_lite_chart(data=df, spec=chart_dict)
+                    st.vega_lite_chart(data=df,
+                                       spec=chart_dict,
+                                       use_container_width=False)
                 else:
                     st.markdown(artifact.text, unsafe_allow_html=True)
 
